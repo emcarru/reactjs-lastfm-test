@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv='Content-type' content='text/html; charset=utf-8'>
+    <title>Basic Example with JSX</title>
+    <link rel="stylesheet" href="css/base.css" />
+</head>
+<body>
+<div id="container">
+</div>
+<script src="build/react.js"></script>
+<script src="build/JSXTransformer.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script type="text/jsx">
+
+    // General Hierarchy for React Components:
+    //
+    // UserTrackBox
+    //    -- TrackList
+    //          -- Track
+    //
+
+    var UserTrackBox = React.createClass({
+        getInitialState: function() {
+            console.log('initial state');
+           return {
+               trackData: []
+           }
+        },
+        componentDidMount: function() {
+            console.log('componentdidmount');
+            $.get(this.props.source, function (result) {
+                var tempTrackData = result.getElementsByTagName("track");
+
+                // make the XML data into an array that is readable in React
+                var trackData = Array.prototype.slice.call(tempTrackData);
+
+                console.log(trackData);
+                if (this.isMounted()) {
+                    this.setState({trackData: trackData});
+                }
+            }.bind(this));
+        },
+        render: function() {
+            console.log('component render');
+            return (
+                    <div className="userTrackBox">
+                            <h1>Recently Played Tracks</h1>
+                            <TrackList data={this.state.trackData} />
+                    </div>
+            );
+        }
+    });
+
+    var TrackList = React.createClass({
+        render: function() {
+            var trackNodes = this.props.data.map(function(result, index) {
+                var _artist = result.getElementsByTagName("artist")[0].childNodes[0].nodeValue;
+                var _title = result.getElementsByTagName("name")[0].childNodes[0].nodeValue;
+                var _album = result.getElementsByTagName("album")[0].childNodes[0].nodeValue;
+
+                return (<Track artist={_artist} title={_title} album={_album} key={index} />);
+            });
+            return (
+                    <ul className="trackList">
+                        {trackNodes}
+                    </ul>
+            );
+        }
+    });
+
+    var Track = React.createClass({
+        render: function() {
+            return (
+                    <div className="track">
+                        <li>
+                            {this.props.artist} - "{this.props.title}" - {this.props.album}
+                        </li>
+                        {this.props.children}
+                    </div>
+            );
+        }
+    });
+
+    React.render(
+      <UserTrackBox source="http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=rj&api_key=6510c6b46fd1c71571bc40ee7037e1a9&format=json" />,
+            document.getElementById('container')
+    );
+
+    // REACT IS SO COOL
+
+</script>
+</body>
+</html>

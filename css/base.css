@@ -1,0 +1,13 @@
+.userTrackBox {
+    width: 600px;
+    height: 100%;
+    margin: 0 auto;
+}
+
+h2 {
+    font-size: 25px;
+}
+
+p {
+    display: inline-block;
+}
